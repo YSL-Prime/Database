@@ -4,7 +4,6 @@ import (
 	"database/entity"
 	"database/mysql"
 	"encoding/json"
-	"fmt"
 	"net/http"
 
 	"github.com/gorilla/mux"
@@ -14,8 +13,7 @@ func NewHttpHandler() http.Handler {
 	mux := mux.NewRouter()
 
 	mux.HandleFunc("/", getAllData).Methods(http.MethodGet)
-	mux.HandleFunc("/Unreviewed", getDataUnreviewed).Methods(http.MethodGet)
-	mux.HandleFunc("/{id}", getDataId).Methods(http.MethodGet)
+	mux.HandleFunc("/unreviewed", getDataUnreviewed).Methods(http.MethodGet)
 
 	return mux
 }
@@ -64,12 +62,4 @@ func getDataUnreviewed(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "서버 오류: 데이터를 JSON으로 변환하는 데 실패했습니다.", http.StatusInternalServerError)
 		return
 	}
-}
-
-func getDataId(w http.ResponseWriter, r *http.Request) {
-	// http get (/data/{id}) 형태로 동작
-	id := mux.Vars(r)["id"]
-
-	w.WriteHeader(http.StatusOK)
-	fmt.Fprintf(w, "hello %s!\n", id)
 }
