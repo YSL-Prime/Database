@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"bytes"
 	"database/entity"
 	"database/mysql"
 	"encoding/json"
@@ -57,4 +58,38 @@ func TestGetDataUnreviewed(t *testing.T) {
 	err = json.NewDecoder(res.Body).Decode(&responseDatas)
 	assert.Nil(err)
 	assert.Equal(4, len(responseDatas))
+}
+
+func TestUpdateRecord(t *testing.T) {
+	assert := assert.New(t)
+
+	// 확인하지 않은 값 가져오기
+	req := httptest.NewRequest(http.MethodGet, "/unreviewed", nil)
+	res := httptest.NewRecorder()
+
+	db, err := mysql.Get()
+	assert.Nil(err)
+
+	h := NewHttpHandler(db)
+	h.ServeHTTP(res, req)
+	assert.Equal(http.StatusOK, res.Code)
+
+	var datas []entity.Data
+	err = json.NewDecoder(res.Body).Decode(&datas)
+	assert.Nil(err)
+
+	// 값 업데이트
+	d := datas[0:2]
+	for i := range d {
+		v := true
+		d[i].Ok = &v
+	}
+
+	jsonData, err := json.Marshal(d)
+	assert.Nil(err)
+	req = httptest.NewRequest(http.MethodPost, "/review/records", bytes.NewReader(jsonData))
+	res = httptest.NewRecorder()
+
+	h.ServeHTTP(res, req)
+	assert.Equal(http.StatusOK, res.Code)
 }
