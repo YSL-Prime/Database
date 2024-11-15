@@ -14,5 +14,8 @@ func main() {
 		return
 	}
 	handler := handler.NewHttpHandler(db)
-	http.ListenAndServe(":9999", handler)
+	err = http.ListenAndServe("127.0.0.1:9999", handler)
+	if err != nil {
+		fmt.Println("서버 실행 오류: ", err)
+	}
 }
